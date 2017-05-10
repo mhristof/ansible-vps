@@ -1,0 +1,29 @@
+---
+- name: generate user password
+  shell: python -c "import uuid; from passlib.hash import sha512_crypt; print sha512_crypt.using(rounds=5000).hash(str(uuid.uuid4().get_hex()[0:64]))" | tee {{ user }}.password
+  changed_when: false
+  delegate_to: localhost
+  become: false
+
+- name: "add {{ user }} user"
+  user:
+    name: '{{ user }}'
+    state: present
+    groups: sudo
+    append: true
+    password: "{{ lookup('file', user + '.password') }}"
+    update_password: on_create
+
+- name: add ssh key
+  authorized_key:
+    user: '{{ user }}'
+    state: present
+    key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+- name: add user to passwordless sudo
+  lineinfile:
+    line: '{{ user }} ALL=(ALL) NOPASSWD: ALL'
+    state: present
+    create: true
+    dest: /etc/sudoers.d/{{ user }}
+

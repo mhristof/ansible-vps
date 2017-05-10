@@ -1,0 +1,15 @@
+---
+
+- name: harden the ssh config
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    line: '{{ item.line }}'
+    regexp: '{{ item.regexp }}'
+    state: present
+  with_items:
+    - line: 'PermitRootLogin no'
+      regexp: 'PermitRootLogin (yes|no)'
+    - line: 'PasswordAuthentication no'
+      regexp: 'PasswordAuthentication (yes|no)'
+  notify:
+    - restart sshd

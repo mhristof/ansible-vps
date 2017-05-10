@@ -1,0 +1,33 @@
+---
+- name: apt-get fali2ban
+  apt:
+    name: '{{ item }}'
+    state: present
+    cache_valid_time: 36000
+    update_cache: yes
+  with_items:
+    - fail2ban
+  tags:
+    - apt
+
+- name: update fail2ban config
+  ini_file:
+    dest: /etc/fail2ban/jail.conf
+    section: '{{ item.section }}'
+    option: '{{ item.opt }}'
+    value: '{{ item.val }}'
+  notify:
+    - restart fail2ban
+  with_items:
+    - section: sshd
+      opt: enabled
+      val: 'true'
+    - section: DEFAULT
+      opt: destemail
+      val: '{{ fail2ban_email }}'
+    - section: DEFAULT
+      opt: sender
+      val: fail2ban@{{ ansible_fqdn }}
+  tags:
+    - fail2ban
+
