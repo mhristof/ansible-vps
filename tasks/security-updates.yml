@@ -1,0 +1,16 @@
+---
+- name: apt-get security updates stuff
+  apt:
+    name: '{{ item }}'
+    state: present
+    cache_valid_time: 36000
+    update_cache: yes
+  with_items:
+    - unattended-upgrades
+  tags:
+    - apt
+
+- name: deploy security updates template
+  template:
+    src: etc/apt/apt.conf.d/50unattended-upgrades
+    dest: /etc/apt/apt.conf.d/50unattended-upgrades
