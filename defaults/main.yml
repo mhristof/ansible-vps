@@ -1,0 +1,3 @@
+---
+user: spiderman
+fail2ban_email: '{{ user }}@gmail.com'
